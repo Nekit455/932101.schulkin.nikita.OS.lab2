@@ -82,7 +82,7 @@ int main() {
         }
 
         // Receiving SIGHUP signal check
-        if (sighupReceived) {
+        if (wasSigHup) {
             printf("SIGHUP received.\n");
             wasSigHup = 0;
             signalOrConnectionCount++;
