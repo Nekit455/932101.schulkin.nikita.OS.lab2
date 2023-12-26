@@ -10,10 +10,10 @@
 #define PORT 8085
 #define BACKLOG 5
 
-volatile sig_atomic_t sighupReceived = 0;
+volatile sig_atomic_t wasSigHup = 0;
 
 void sigHupHandler(int sigNumber) {
-    sighupReceived = 1;
+    wasSigHup = 1;
 }
 
 int main() {
@@ -84,7 +84,7 @@ int main() {
         // Receiving SIGHUP signal check
         if (sighupReceived) {
             printf("SIGHUP received.\n");
-            sighupReceived = 0;
+            wasSigHup = 0;
             signalOrConnectionCount++;
             continue;
         }
