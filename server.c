@@ -10,7 +10,7 @@
 #define PORT 8085
 #define BACKLOG 5
 
-// Обработчика сигнала
+// Обработчик сигнала
 volatile sig_atomic_t wasSigHup = 0;
 
 void sigHupHandler(int sigNumber) {
