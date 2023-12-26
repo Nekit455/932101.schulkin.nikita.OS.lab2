@@ -10,6 +10,7 @@
 #define PORT 8085
 #define BACKLOG 5
 
+// Обработчика сигнала
 volatile sig_atomic_t wasSigHup = 0;
 
 void sigHupHandler(int sigNumber) {
@@ -22,31 +23,29 @@ int main() {
     struct sockaddr_in socketAddress; 
     int addressLength = sizeof(socketAddress);
     fd_set readfds;
-    struct sigaction sa;
-    sigset_t blockedMask, origMask;
     char buffer[1024] = { 0 };
     int readBytes;
     int maxSd;
     int signalOrConnectionCount = 0;
 
-    // Socket creating
+    // Создание сокета
     if ((serverFD = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("create error");
         exit(EXIT_FAILURE);
     }
 
-    // Setting socket address parameters
+    // Структура адреса сервера
     socketAddress.sin_family = AF_INET;
     socketAddress.sin_addr.s_addr = INADDR_ANY;
     socketAddress.sin_port = htons(PORT);
 
-    // Socket binding to the address
+    // Привязка сокета к указанному адресу
     if (bind(serverFD, (struct sockaddr*)&socketAddress, sizeof(socketAddress)) < 0) {
         perror("bind error");
         exit(EXIT_FAILURE);
     }
 
-    // Started socket listenig
+    // Подготовка к прослушиванию соединений
     if (listen(serverFD, BACKLOG) < 0) {
         perror("listen error");
         exit(EXIT_FAILURE);
@@ -54,13 +53,15 @@ int main() {
 
     printf("Server started on port %d \n", PORT);
 
-    // Signal handler registration
+    // Регистрация обработчика сигнала
+    struct sigaction sa;
     sigaction(SIGHUP, NULL, &sa);
     sa.sa_handler = sigHupHandler;
     sa.sa_flags |= SA_RESTART;
     sigaction(SIGHUP, &sa, NULL);
 
-    // Setting up signal blocking
+    // Блокировка сигнала
+    sigset_t blockedMask, origMask;
     sigemptyset(&blockedMask);
     sigemptyset(&origMask);
     sigaddset(&blockedMask, SIGHUP);
