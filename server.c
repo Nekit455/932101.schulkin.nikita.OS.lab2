@@ -82,7 +82,7 @@ int main() {
             exit(EXIT_FAILURE); 
         }
 
-        // Receiving SIGHUP signal check
+        // Проверка получения сигнала SIGHUP
         if (wasSigHup) {
             printf("SIGHUP received.\n");
             wasSigHup = 0;
@@ -90,7 +90,7 @@ int main() {
             continue;
         }
     
-        // Reading incoming bytes
+        // Чтение данных входящего соединения
         if (incomingSocketFD > 0 && FD_ISSET(incomingSocketFD, &readfds)) { 
             readBytes = read(incomingSocketFD, buffer, 1024);
 
@@ -108,7 +108,7 @@ int main() {
             continue;
         }
         
-        // Check of incoming connections
+        // Проверка наличия входящих соединений
         if (FD_ISSET(serverFD, &readfds)) {
             if ((incomingSocketFD = accept(serverFD, (struct sockaddr*)&socketAddress, (socklen_t*)&addressLength)) < 0) {
                 perror("accept error");
