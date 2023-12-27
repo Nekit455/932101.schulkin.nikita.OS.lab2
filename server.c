@@ -8,7 +8,6 @@
 #include <errno.h>
 
 #define PORT 8085
-#define BACKLOG 5
 
 // Обработчик сигнала
 volatile sig_atomic_t wasSigHup = 0;
@@ -46,7 +45,7 @@ int main() {
     }
 
     // Подготовка к прослушиванию соединений
-    if (listen(serverFD, BACKLOG) < 0) {
+    if (listen(serverFD, 0) < 0) {
         perror("listen error");
         exit(EXIT_FAILURE);
     }
