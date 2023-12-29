@@ -79,7 +79,7 @@ int main() {
         if (pselect(maxFD + 1, &fds, NULL, NULL, NULL, &origMask) == -1) { 
             if (errno == EINTR) {
                 if (wasSigHup) {
-                    printf("Received SIGHUP.\n");
+                    printf("SIGHUP received.\n");
                     wasSigHup = 0;
                     count++;
                     continue;
