@@ -21,11 +21,11 @@ int main() {
     int incomingSocketFD = 0; 
     struct sockaddr_in socketAddress; 
     int addressLength = sizeof(socketAddress);
-    fd_set readfds;
+    fd_set fds;
     char buffer[1024] = { 0 };
     int readBytes;
     int maxSd;
-    int signalOrConnectionCount = 0;
+    int count = 0;
 
     // Создание сокета
     if ((serverFD = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -66,31 +66,32 @@ int main() {
     sigaddset(&blockedMask, SIGHUP);
     sigprocmask(SIG_BLOCK, &blockedMask, &origMask);
    
-    while (signalOrConnectionCount < 3) {
-        FD_ZERO(&readfds); 
-        FD_SET(serverFD, &readfds); 
+    while (count < 3) {
+        FD_ZERO(&fds); 
+        FD_SET(serverFD, &fds); 
         
         if (incomingSocketFD > 0) { 
-            FD_SET(incomingSocketFD, &readfds); 
+            FD_SET(incomingSocketFD, &fds); 
         } 
         
         maxSd = (incomingSocketFD > serverFD) ? incomingSocketFD : serverFD; 
  
-        if (pselect(maxSd + 1, &readfds, NULL, NULL, NULL, &origMask) < 0 && errno != EINTR) { 
-            perror("pselect error"); 
-            exit(EXIT_FAILURE); 
+        if (pselect(maxSd + 1, &fds, NULL, NULL, NULL, &origMask) == -1) { 
+            if (errno == EINTR) {
+                if (wasSigHup) {
+                    printf("Received SIGHUP.\n");
+                    wasSigHup = 0;
+                    count++;
+                    continue;
+                }
+            } else {
+                perror("pselect error\n");
+                exit(EXIT_FAILURE);
         }
-
-        // Проверка получения сигнала SIGHUP
-        if (wasSigHup) {
-            printf("SIGHUP received.\n");
-            wasSigHup = 0;
-            signalOrConnectionCount++;
-            continue;
         }
     
         // Чтение данных входящего соединения
-        if (incomingSocketFD > 0 && FD_ISSET(incomingSocketFD, &readfds)) { 
+        if (incomingSocketFD > 0 && FD_ISSET(incomingSocketFD, &fds)) { 
             readBytes = read(incomingSocketFD, buffer, 1024);
 
             if (readBytes > 0) { 
@@ -102,13 +103,13 @@ int main() {
                 } else { 
                     perror("read error"); 
                 } 
-                signalOrConnectionCount++;   
+                count++;   
             } 
             continue;
         }
         
         // Проверка наличия входящих соединений
-        if (FD_ISSET(serverFD, &readfds)) {
+        if (FD_ISSET(serverFD, &fds)) {
             if ((incomingSocketFD = accept(serverFD, (struct sockaddr*)&socketAddress, (socklen_t*)&addressLength)) < 0) {
                 perror("accept error");
                 exit(EXIT_FAILURE);
