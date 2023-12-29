@@ -12,7 +12,7 @@
 // Обработчик сигнала
 volatile sig_atomic_t wasSigHup = 0;
 
-void sigHupHandler(int sigNumber) {
+void sigHupHandler(int r) {
     wasSigHup = 1;
 }
 
