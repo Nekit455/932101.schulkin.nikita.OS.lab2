@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <errno.h>
 
-#define PORT 8085
+#define PORT 1234
 
 // Обработчик сигнала
 volatile sig_atomic_t wasSigHup = 0;
