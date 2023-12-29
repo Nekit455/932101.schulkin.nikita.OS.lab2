@@ -87,7 +87,7 @@ int main() {
             } else {
                 perror("pselect error\n");
                 exit(EXIT_FAILURE);
-        }
+              }
         }
     
         // Чтение данных входящего соединения
