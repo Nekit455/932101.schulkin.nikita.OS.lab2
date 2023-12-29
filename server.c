@@ -21,10 +21,8 @@ int main() {
     int incomingSocketFD = 0; 
     struct sockaddr_in socketAddress; 
     int addressLength = sizeof(socketAddress);
-    fd_set fds;
-    char buffer[1024] = { 0 };
+    char buf[1024] = { 0 };
     int readBytes;
-    int maxSd;
     int count = 0;
 
     // Создание сокета
@@ -66,6 +64,8 @@ int main() {
     sigaddset(&blockedMask, SIGHUP);
     sigprocmask(SIG_BLOCK, &blockedMask, &origMask);
    
+    fd_set fds;
+    int maxFD;
     while (count < 3) {
         FD_ZERO(&fds); 
         FD_SET(serverFD, &fds); 
@@ -74,9 +74,9 @@ int main() {
             FD_SET(incomingSocketFD, &fds); 
         } 
         
-        maxSd = (incomingSocketFD > serverFD) ? incomingSocketFD : serverFD; 
+        maxFD = (incomingSocketFD > serverFD) ? incomingSocketFD : serverFD; 
  
-        if (pselect(maxSd + 1, &fds, NULL, NULL, NULL, &origMask) == -1) { 
+        if (pselect(maxFD + 1, &fds, NULL, NULL, NULL, &origMask) == -1) { 
             if (errno == EINTR) {
                 if (wasSigHup) {
                     printf("Received SIGHUP.\n");
@@ -92,7 +92,7 @@ int main() {
     
         // Чтение данных входящего соединения
         if (incomingSocketFD > 0 && FD_ISSET(incomingSocketFD, &fds)) { 
-            readBytes = read(incomingSocketFD, buffer, 1024);
+            readBytes = read(incomingSocketFD, buf, 1024);
 
             if (readBytes > 0) { 
                 printf("Received data: %d bytes\n", readBytes); 
