@@ -25,7 +25,7 @@ int main() {
     int data;
     int count = 0;
 
-    // Создание сокета
+    // Создание серверного сокета
     if ((serverFD = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("creating error");
         exit(EXIT_FAILURE);
