@@ -22,12 +22,12 @@ int main() {
     struct sockaddr_in socketAddress; 
     int addressLength = sizeof(socketAddress);
     char buf[1024] = { 0 };
-    int readBytes;
+    int data;
     int count = 0;
 
     // Создание сокета
     if ((serverFD = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("create error");
+        perror("creating error");
         exit(EXIT_FAILURE);
     }
 
@@ -38,13 +38,13 @@ int main() {
 
     // Привязка сокета к указанному адресу
     if (bind(serverFD, (struct sockaddr*)&socketAddress, sizeof(socketAddress)) < 0) {
-        perror("bind error");
+        perror("binding error");
         exit(EXIT_FAILURE);
     }
 
     // Подготовка к прослушиванию соединений
     if (listen(serverFD, 0) < 0) {
-        perror("listen error");
+        perror("listening error");
         exit(EXIT_FAILURE);
     }
 
@@ -92,16 +92,16 @@ int main() {
     
         // Чтение данных входящего соединения
         if (incomingSocketFD > 0 && FD_ISSET(incomingSocketFD, &fds)) { 
-            readBytes = read(incomingSocketFD, buf, 1024);
+            data = read(incomingSocketFD, buf, 1024);
 
-            if (readBytes > 0) { 
-                printf("Received data: %d bytes\n", readBytes); 
+            if (data > 0) { 
+                printf("Total data: %d bytes\n", data); 
             } else {
-                if (readBytes == 0) {
+                if (data == 0) {
                     close(incomingSocketFD); 
                     incomingSocketFD = 0; 
                 } else { 
-                    perror("read error"); 
+                    perror("reading error"); 
                 } 
                 count++;   
             } 
@@ -111,7 +111,7 @@ int main() {
         // Проверка наличия входящих соединений
         if (FD_ISSET(serverFD, &fds)) {
             if ((incomingSocketFD = accept(serverFD, (struct sockaddr*)&socketAddress, (socklen_t*)&addressLength)) < 0) {
-                perror("accept error");
+                perror("accepting error");
                 exit(EXIT_FAILURE);
             }
 
