@@ -18,7 +18,7 @@ void sigHupHandler(int r) {
 
 int main() {
     int serverFD;
-    int incomingSocketFD = 0; 
+    int clientFD = 0; 
     struct sockaddr_in socketAddress; 
     int addressLength = sizeof(socketAddress);
     char buf[1024] = { 0 };
@@ -70,11 +70,11 @@ int main() {
         FD_ZERO(&fds); 
         FD_SET(serverFD, &fds); 
         
-        if (incomingSocketFD > 0) { 
-            FD_SET(incomingSocketFD, &fds); 
+        if (clientFD > 0) { 
+            FD_SET(clientFD, &fds); 
         } 
         
-        maxFD = (incomingSocketFD > serverFD) ? incomingSocketFD : serverFD; 
+        maxFD = (clientFD > serverFD) ? clientFD : serverFD; 
  
         if (pselect(maxFD + 1, &fds, NULL, NULL, NULL, &origMask) == -1) { 
             if (errno == EINTR) {
@@ -91,15 +91,15 @@ int main() {
         }
     
         // Чтение данных входящего соединения
-        if (incomingSocketFD > 0 && FD_ISSET(incomingSocketFD, &fds)) { 
-            data = read(incomingSocketFD, buf, 1024);
+        if (clientFD > 0 && FD_ISSET(clientFD, &fds)) { 
+            data = read(clientFD, buf, 1024);
 
             if (data > 0) { 
                 printf("Total data: %d bytes\n", data); 
             } else {
                 if (data == 0) {
-                    close(incomingSocketFD); 
-                    incomingSocketFD = 0; 
+                    close(clientFD); 
+                    clientFD = 0; 
                 } else { 
                     perror("reading error"); 
                 } 
@@ -110,7 +110,7 @@ int main() {
         
         // Проверка наличия входящих соединений
         if (FD_ISSET(serverFD, &fds)) {
-            if ((incomingSocketFD = accept(serverFD, (struct sockaddr*)&socketAddress, (socklen_t*)&addressLength)) < 0) {
+            if ((clientFD = accept(serverFD, (struct sockaddr*)&socketAddress, (socklen_t*)&addressLength)) < 0) {
                 perror("accepting error");
                 exit(EXIT_FAILURE);
             }
