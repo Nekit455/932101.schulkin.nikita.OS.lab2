@@ -74,8 +74,11 @@ int main() {
             FD_SET(clientFD, &fds); 
         } 
         
-        maxFD = (clientFD > serverFD) ? clientFD : serverFD; 
- 
+        if (client FD > serverFD) 
+            maxFD = clientFD; 
+        else 
+            maxFD = serverFD;
+        
         if (pselect(maxFD + 1, &fds, NULL, NULL, NULL, &origMask) == -1) { 
             if (errno == EINTR) {
                 if (wasSigHup) {
