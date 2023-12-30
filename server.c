@@ -74,7 +74,7 @@ int main() {
             FD_SET(clientFD, &fds); 
         } 
         
-        if (client FD > serverFD) 
+        if (clientFD > serverFD) 
             maxFD = clientFD; 
         else 
             maxFD = serverFD;
